@@ -6,31 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/jokeText"
-        android:layout_width="307dp"
-        android:layout_height="172dp"
-        android:layout_marginBottom="404dp"
-        android:background="#E3CFF6"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:autoSizeTextType="uniform"
-        app:layout_constrainedWidth="true"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/jokes_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/generateButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        android:layout_marginEnd="160dp"
-        android:text="New Joke!"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/jokeText"
-        app:layout_constraintVertical_bias="0.121" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,8 +3,9 @@ package com.example.randomjoke
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.codepath.asynchttpclient.AsyncHttpClient
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 import okhttp3.Headers
@@ -16,49 +17,67 @@ fun JSONObject.contains(key: String): Boolean {
 
 class MainActivity : AppCompatActivity() {
     var jokeTextURL = ""
-
+    private lateinit var recyclerViewJokes: RecyclerView
+    var jokesList = mutableListOf<String>() //list of photo URLs
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val button = findViewById<Button>(R.id.generateButton)
-        val joke = findViewById<TextView>(R.id.jokeText)
 
-        button.setOnClickListener {
-            getNextJoke(joke)
-        }
+        recyclerViewJokes = findViewById<RecyclerView>(R.id.jokes_recycler_view)
 
-        Log.d("jokeTextURL", "Joke Text URL set")
+
+        getJoke(15)
     }
 
-    private fun getJoke(textView: TextView) {
+
+
+    private fun getJoke(count: Int) {
         val client = AsyncHttpClient()
-        client["https://v2.jokeapi.dev/joke/Any?blacklistFlags=religious,political", object : JsonHttpResponseHandler() {
-            override fun onSuccess(statusCode: Int, headers: Headers, json: JsonHttpResponseHandler.JSON) {
-                if (json.jsonObject.contains("joke")) {
-                    jokeTextURL = json.jsonObject.getString("joke")
-                } else {
-                    val jokeTextSetup = json.jsonObject.getString("setup")
-                    val jokeTextDelivery = json.jsonObject.getString("delivery")
-                    jokeTextURL = jokeTextSetup + "\n\n\n\n" + jokeTextDelivery
-                }
-                runOnUiThread {
-                    textView.text = jokeTextURL
-                }
-                Log.d("Joke", "response successful")
-            }
+        for (i in 1..count) {
+            client["https://v2.jokeapi.dev/joke/Any?blacklistFlags=religious,political", object :
+                JsonHttpResponseHandler() {
+                override fun onSuccess(
+                    statusCode: Int,
+                    headers: Headers,
+                    json: JsonHttpResponseHandler.JSON
+                ) {
+                    val jokeTextObject = json.jsonObject
 
-            override fun onFailure(
-                statusCode: Int,
-                headers: Headers?,
-                errorResponse: String,
-                throwable: Throwable?
-            ) {
-                Log.d("Joke Error", errorResponse)
-            }
-        }]
-    }
+                    if (jokeTextObject.contains("joke")) {
+                        jokeTextURL = jokeTextObject.getString("joke")
+                    } else {
+                        val jokeTextSetup = jokeTextObject.getString("setup")
+                        val jokeTextDelivery = jokeTextObject.getString("delivery")
+                        jokeTextURL = jokeTextSetup + "\n\n\n\n" + jokeTextDelivery
+                    }
 
-    private fun getNextJoke(textView: TextView) {
-        getJoke(textView)
+                    jokesList.add(jokeTextURL)
+                    Log.d("sib", jokeTextURL)
+
+                    if (jokesList.size == count) {
+                        // All jokes have been fetched, update the UI
+                        val adapter = JokeAdapter(jokesList)
+                        recyclerViewJokes.adapter = adapter
+                        recyclerViewJokes.layoutManager = LinearLayoutManager(this@MainActivity)
+                        recyclerViewJokes.addItemDecoration(
+                            DividerItemDecoration(
+                                this@MainActivity,
+                                LinearLayoutManager.VERTICAL
+                            )
+                        )
+                    }
+                    Log.d("Joke", "response successful")
+                }
+
+                override fun onFailure(
+                    statusCode: Int,
+                    headers: Headers?,
+                    errorResponse: String,
+                    throwable: Throwable?
+                ) {
+                    Log.d("Joke Error", errorResponse)
+                }
+            }]
+        }
     }
 }
